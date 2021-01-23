@@ -1,4 +1,6 @@
 
+![logo](./for_description/logo_400.gif)
+
 ### ごったい-mini (Gotthai-mini)
 タイ語をドラッグするだけで辞書が引けるChorome拡張機能。
 
