@@ -40,3 +40,9 @@
 - 以上の条件をクリアした場合に限りごったいと通信を行い、結果を見やすい位置に表示する。
 
 ---
+
+### 変更履歴 (Update history)
+v1.0.3 twitterで音声再生されない問題解消  
+v1.0.2 GoogleAnalitics追加 & GitHubにinitial commit  
+v1.0.1 リファクタリング & Googleウェブストア公開  
+v1.0.0 完成
