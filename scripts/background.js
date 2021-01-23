@@ -13,23 +13,28 @@ chrome.storage.local.get(null, (storage)=>{
 
 // タイ語検索
 chrome.runtime.onMessage.addListener((request, sender, sendResponse)=>{
-  const kw = request.keyword;
-  xhr.open("GET", url + kw, true);
-  xhr.onreadystatechange = ()=>{
-    response.success = true;
-    if (xhr.readyState == 4) {
-      if (xhr.status === 200) {
-        const parser = new DOMParser();
-        let dom = parser.parseFromString(xhr.responseText, "text/html");
-        getInfo(dom);
-        sendResponse(response);
-      } else {
-        response.success = false;
-        sendResponse(response);
+  if(request.keyword) {
+    const kw = request.keyword;
+    xhr.open("GET", url + kw, true);
+    xhr.onreadystatechange = ()=>{
+      response.success = true;
+      if (xhr.readyState == 4) {
+        if (xhr.status === 200) {
+          const parser = new DOMParser();
+          let dom = parser.parseFromString(xhr.responseText, "text/html");
+          getInfo(dom);
+          sendResponse(response);
+        } else {
+          response.success = false;
+          sendResponse(response);
+        }
       }
     }
+    xhr.send();
+  } else {
+    const voiceData = new Audio(request.voiceUrl);
+    voiceData.play();
   }
-  xhr.send();
   return true
 });
 
@@ -60,7 +65,6 @@ const getInfo = (dom)=>{
 
 // Google Analytics
 (function(i, s, o, g, r, a, m) {
-  console.log('aaaege');
   i['GoogleAnalyticsObject'] = r;
   (i[r] =
     i[r] ||

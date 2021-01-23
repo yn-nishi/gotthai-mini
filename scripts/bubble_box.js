@@ -1,11 +1,13 @@
 // Copyright 2021 yn-nishi All Rights Reserved.
 (function() {
   'use strict';
-  const url = 'https://www.gotthai.net/';
+  const url = 'https://www.gotthai.net';
   const url2 = 'https://www.gotthai.net/search_all?utf8=%E2%9C%93&search_form_all%5Bkeyword%5D=';
+  // 音声再生できないサイト
+  const secureDomains = ['twitter.com'];
+  const isSecureDomain = secureDomains.some(value => value === location.hostname);
   const characterLimit = 20;
   const settings = {};
-  
   // 設定読み込み
   document.onmousedown = ()=>{
     chrome.storage.local.get(null, (storage)=>{
@@ -41,7 +43,7 @@
     }
   }
 
-  // タイ文字:3585 ~ 3675 数字等:48~57 半分以上matchしたらtrue
+  // タイ文字:3585 ~ 3675 数字等:48~57
   const isThai = kw =>{
     const removeSpace = kw.replace(/\s+/g, "");
     for (var i = 0, t = 0; i < removeSpace.length; ++i) {
@@ -105,8 +107,11 @@
       if (response.matching[0] > 0) {
         const voice = document.createElement('div');
         voice.className = 'gotthai-bubble-voice';
-        let voiceData = new Audio(url + response.voice);
-        voice.addEventListener("click", ()=>{ voiceData.play(); });
+        const voiceData = isSecureDomain ? null : new Audio(url + response.voice);
+        // background.jsで音声再生する場合は0.3秒ぐらい遅くなる
+        voice.addEventListener("click", ()=>{ 
+          isSecureDomain ? chrome.runtime.sendMessage({'voiceUrl': url + response.voice}, ()=>{}) : voiceData.play();
+        });
         result.appendChild(voice);
       }
       const pronunciation = document.createElement('div');
