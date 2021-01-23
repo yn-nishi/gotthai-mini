@@ -1,0 +1,35 @@
+{
+  "name": "ごったいmini",
+  "short_name": "mini",
+  "author": "yn-nishi",
+  "description" : "いつでもあなたにごったいを。",
+  "version": "1.0.2",
+  "manifest_version": 2,
+  "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'",
+  "permissions": ["storage"],
+  "background": {
+    "scripts": ["scripts/background.js"],
+    "persistent": false
+  },
+  "browser_action": {
+    "name": "Gotthai-mini",
+    "default_popup": "html/popup.html",
+    "default_icon": {
+      "16": "icons/gotthai_16.png",
+      "32": "icons/gotthai_32.png",
+      "48": "icons/gotthai_48.png",
+      "128": "icons/gotthai_128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/gotthai_16.png",
+    "32": "icons/gotthai_32.png",
+    "48": "icons/gotthai_48.png",
+    "128": "icons/gotthai_128.png"
+  },
+  "content_scripts": [{
+    "matches": ["<all_urls>"],
+    "js": ["scripts/bubble_box.js"],
+    "css": ["css/bubble_box.css"]
+  }]
+ }

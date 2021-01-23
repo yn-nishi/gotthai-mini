@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ごったいmini</title>
+  <link href="../css/popup.css" rel="stylesheet">
+</head>
+<body>
+  <p>ごったいで検索</p>
+  <form id="form" name="form" action="https://www.gotthai.net/search_all" target="_blank" accept-charset="UTF-8" method="get">
+    <input name="utf8" type="hidden" value="✓">
+    <input type="text" class="searchText" name="search_form_all[keyword]" autocomplete="off" autofocus>
+  </form>
+  <div class="bubble-setting">
+    <label for="bubble" class="switch-text">吹き出し機能</label>
+    <span class="switch">
+      <input id="bubble" type='checkbox' checked>
+      <label for="bubble"></label>
+    </span> 
+  </div>
+  <script src="../scripts/popup.js"></script>
+</body>
+</html>

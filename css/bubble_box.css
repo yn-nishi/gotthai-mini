@@ -1,0 +1,140 @@
+/* 他のcssに影響を受けないように全classにmarginとpaddingを指定 */
+
+.gotthai-bubble-box {
+  position: absolute;
+  margin:0px;
+  padding: 0px 5px 5px 5px;
+  border-radius: 5px;
+  border: 1px solid rgba(100, 100, 100, 0.6);
+  background-color: rgba(255, 255, 255, 1.0);
+  box-shadow: 1px 1px 3px gray;
+  max-width: 50%;
+  z-index:10000;
+}
+
+.gotthai-bubble-box a:hover {
+  color: #0d49b1;
+}
+
+.gotthai-bubble-box a:visited {
+  color: #3070df;
+}
+
+.gotthai-bubble-item-name {
+  margin: 5px 0px 0px 0px;
+  padding: 1px 1px;
+  font-size: 9px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #333;
+  background-color: #eee;
+  border-radius: 4px;
+}
+
+.gotthai-bubble-selected-text {
+  margin: 0px;
+  padding: 0px;
+  font-size: 20px;
+  color: black;
+}
+
+.gotthai-bubble-result {
+  margin: 0px;
+  padding: 0px;
+  font-size: 20px;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+}
+
+.gotthai-bubble-result a {
+  margin: 0px 5px 0px 0px;
+  padding: 0px;
+  font-family: 'Segoe UI', Geneva, Verdana, sans-serif;
+  color: #3070df;
+  text-decoration:none;
+}
+
+.gotthai-bubble-voice {
+  margin: 0px;
+  padding: 0px;
+  width: 22px;
+  height: 22px;
+  background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAQAAABKfvVzAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAAmJLR0QA/4ePzL8AAACjSURBVDjLY2AYYmA1QwADI3FKy8HkfyA8zqBOjPL/YLqO4SWQ9YXBmbDy/1C2EMMGsBZNQsr/w/lMDCuAvKOElP+HeloQSPIxPAPynVAV/seAENHtYLoKyJpDnIb/DOZA2gBI3yRWQx6Q5gZ7nFYaQE4yJN5JW8B0PaanYaADRcMaBh5wsD7HDFZMLURGHEIL0UkDpoWExAfRQlLyJiMDDSAAALgghxq3YsGLAAAAAElFTkSuQmCC);
+  background-size: 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity:0.6;
+  cursor : pointer;
+}
+
+.gotthai-bubble-voice:hover {
+	opacity: 0.9 ;
+}
+
+.gotthai-bubble-pronunciation {
+  margin: 0px;
+  padding: 0px;
+  font-size: 15px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: black;
+}
+
+.gotthai-bubble-katakana {
+  margin: 0px;
+  padding: 0px;
+  font-size: 10px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: black;
+}
+
+.gotthai-bubble-meaning {
+  font-size: 12px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: black;
+  margin: 0px;
+  padding: 0px;
+}
+
+.gotthai-bubble-meaning ol{
+  margin: 0px;
+  padding: 0px 0px 0px 15px;
+  list-style: decimal;
+}
+.gotthai-bubble-meaning li{
+  margin: 0px;
+  padding: 0px;
+  list-style: decimal;
+}
+
+.gotthai-bubble-matching {
+  margin: 5px 0px 0px 0px;
+  padding: 0px;
+  font-size: 10px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.gotthai-bubble-matching a {
+  color: #3070df;
+  text-decoration:none;
+}
+
+.gotthai-bubble-notice {
+  margin: 0px;
+  padding: 0px;
+  font-size: 13px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: black;
+}
+.gotthai-bubble-notice a {
+  font-size: 20px;
+  color: #3070df;
+  text-decoration:none;
+}
+.gotthai-bubble-error {
+  margin: 10px 0px 0px 0px;
+  padding: 0px;
+  font-size: 13px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: black;
+}
