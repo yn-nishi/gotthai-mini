@@ -1,9 +1,8 @@
 // Copyright 2021 yn-nishi All Rights Reserved.
 "use strict";
 const url = 'https://www.gotthai.net/search_all?utf8=%E2%9C%93&search_form_all%5Bkeyword%5D=';
-const xhr = new XMLHttpRequest();
 const response = {};
-
+let voiceData;
 // 設定初期化
 chrome.storage.local.get(null, (storage)=>{
   if (storage['bubbleFunction'] === undefined) {
@@ -12,34 +11,62 @@ chrome.storage.local.get(null, (storage)=>{
 });
 
 // タイ語検索
-chrome.runtime.onMessage.addListener((request, sender, sendResponse)=>{
-  if(request.keyword) {
-    const kw = request.keyword;
-    xhr.open("GET", url + kw, true);
-    xhr.onreadystatechange = ()=>{
-      response.success = true;
-      if (xhr.readyState == 4) {
-        if (xhr.status === 200) {
-          const parser = new DOMParser();
-          let dom = parser.parseFromString(xhr.responseText, "text/html");
-          getInfo(dom);
-          sendResponse(response);
-        } else {
-          response.success = false;
-          sendResponse(response);
+new Promise((resolve) => { 
+      chrome.runtime.onMessage.addListener((request, sender, sendResponse)=>{
+      const xhr = new XMLHttpRequest();
+      const kw = request.keyword;
+      xhr.open("GET", url + kw, true);
+      xhr.onreadystatechange = ()=>{
+        if (xhr.readyState == 4) {
+          if (xhr.status === 200) {
+            response.success = true;
+            const parser = new DOMParser();
+            const dom = parser.parseFromString(xhr.responseText, "text/html");
+            scraping(dom);
+            console.log(response.voice);
+            resolve(response.voice);
+            sendResponse(response);
+          } else {
+            response.success = false;
+            sendResponse(response);
+          }
         }
       }
-    }
+    console.log('backA')
+    console.log('backA2')
     xhr.send();
-  } else {
-    const voiceData = new Audio(request.voiceUrl);
-    voiceData.play();
-  }
-  return true
+  return true;
+  })
+})
+.then((voiceUrl) => {
+    console.log('#33')
+    console.log(voiceUrl);
+    console.log('#34')
+    if (voiceUrl) {
+    setTimeout(() => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("GET", 'https://www.gotthai.net' + voiceUrl, true);
+      xhr.responseType = 'blob';
+      xhr.onreadystatechange = ()=>{
+        if (xhr.readyState == 4 && xhr.status === 200) {
+          var reader = new FileReader();
+          console.log(xhr.response);
+          reader.readAsDataURL(xhr.response);
+          reader.onloadend = function() {
+            voiceData = new Audio(reader.result);
+            console.log(voiceData);
+            voiceData.play();
+          }
+        }
+      }
+      xhr.send();
+    },1000);
+    }
 });
 
+
 // スクレイピング
-const getInfo = (dom)=>{
+const scraping = (dom)=>{
   let matching = dom.getElementsByClassName('found-count');
   if (matching.length === 0) {
     response.success = false;
@@ -86,3 +113,67 @@ const getInfo = (dom)=>{
 ga('create', 'UA-187863811-1', 'auto');
 ga('set', 'checkProtocolTask', null);
 ga('send', 'pageview', 'background.js');
+
+// function gegege (request, sender, sendResponse) {
+  
+//   const xhr = new XMLHttpRequest();
+//   const kw = request.keyword;
+//   xhr.open("GET", url + kw, true);
+//   xhr.onreadystatechange = ()=>{
+//     if (xhr.readyState == 4) {
+//       if (xhr.status === 200) {
+//         response.success = true;
+//         const parser = new DOMParser();
+//         let dom = parser.parseFromString(xhr.responseText, "text/html");
+//         scraping(dom);
+//         sendResponse(response);
+//       } else {
+//         response.success = false;
+//         sendResponse(response);
+//       }
+//     }
+//   }
+//   xhr.send();
+// }
+
+
+  // } else {
+  //   const xhr = new XMLHttpRequest();
+  //   xhr.open("GET", request.voiceUrl, true);
+  //   xhr.responseType = 'blob';
+  //   xhr.onreadystatechange = ()=>{
+  //     if (xhr.readyState == 4 && xhr.status === 200) {
+  //       var reader = new FileReader();
+  //       console.log(xhr.response);
+  //       reader.readAsDataURL(xhr.response);
+  //       reader.onloadend = function() {
+  //       response.voiceBase64 = reader.result;
+  //         sendResponse(response);
+  //       }
+  //     }
+  //   }
+  //   xhr.send();
+
+
+
+  // const promise = new Promise((resolve, reject) => { // #1
+  //   console.log('#1')
+  //   resolve('Hello ')
+  // })
+  
+  // promise.then((msg) => { // #2
+  //   return new Promise((resolve, reject) => {
+  //     setTimeout(() => {
+  //       console.log('#2')
+  //       resolve(msg + "I'm ")
+  //     }, 3000)
+  //   })
+  // }).then((msg) => { // #3
+  //   console.log('#3')
+  //   return msg + 'Jeccy.'
+  // }).then((msg) => { // #4
+  //   console.log('#4')
+  //   console.log(msg)
+  // }).catch(() => { // エラーハンドリング
+  //   console.error('Something wrong!')
+  // })

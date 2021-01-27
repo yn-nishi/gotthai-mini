@@ -1,8 +1,11 @@
 // Copyright 2021 yn-nishi All Rights Reserved.
+// <audio preload="auto" src="data:video/mp4;base64,AAAAAAAA" id="v"></audio>
 (function() {
   'use strict';
   const url = 'https://www.gotthai.net';
   const url2 = 'https://www.gotthai.net/search_all?utf8=%E2%9C%93&search_form_all%5Bkeyword%5D=';
+  let voiceUrl = '';
+  let voiceData;
   // 音声再生できないサイト
   const secureDomains = ['twitter.com'];
   const isSecureDomain = secureDomains.some(value => value === location.hostname);
@@ -25,9 +28,8 @@
     // 吹き出し上のクリックは何もせず終了
     if (e.path.includes(previousBubble)) return;
     // 前回のアンカーと吹き出し削除
-    previousAnchor &&  previousAnchor.remove();
-    previousBubble &&  previousBubble.remove();
-  
+    previousAnchor && previousAnchor.remove();
+    previousBubble && previousBubble.remove();
     // メイン処理
     if (kw.trim() !== '' && settings['bubbleFunction'] && isThai(kw) && !isFormArea()) {
       const anchorRect = setAnchor(selection);
@@ -35,13 +37,40 @@
         const boxElm = createErrorBox(kw);
         setBubbleBox(anchorRect, boxElm);
       } else {
-        chrome.runtime.sendMessage({'keyword': kw}, response =>{
-          const boxElm = response.success ? createBubbleBox(kw, response) : createErrorBox(kw);
-          setBubbleBox(anchorRect, boxElm);
+      //   new Promise((resolve) => { 
+          chrome.runtime.sendMessage({'keyword': kw}, response =>{
+            console.log(response)
+            const boxElm = response.success ? createBubbleBox(kw, response) : createErrorBox(kw);
+            setBubbleBox(anchorRect, boxElm);
+      //       resolve();
+      //     });
+      //   }).then(() => {
+      //       console.log('#3')
+      //       if (voiceUrl) {
+      //         setTimeout(() => {
+      //           chrome.runtime.sendMessage({'voiceUrl': voiceUrl}, response =>{
+      //           console.log(response)
+      //             voiceData = new Audio(response.voiceBase64);
+      //           });
+      //         }, 3000)
+      //       }
         });
       }
     }
   }
+  
+
+
+  const get_voice = ()=>{
+    // voice.onclick = ()=>{ voiceData.play(); };
+    // console.log(voice);
+    chrome.runtime.sendMessage({'voiceUrl': voiceUrl}, response =>{
+      voiceData = new Audio(response.voiceBase64);
+      voiceData.play();
+      console.log(document.getElementsByClassName('gotthai-bubble-voice'));
+    });
+  }
+
 
   // タイ文字:3585 ~ 3675 数字等:48~57
   const isThai = kw =>{
@@ -53,6 +82,7 @@
     return t / i >= 0.5 ? true : false;
   }
 
+  //<textarea>と<input>は検索しない
   const isFormArea = ()=>{
     const elmName = document.activeElement.nodeName;
     return  elmName === 'TEXTAREA' || elmName === 'INPUT';
@@ -104,14 +134,23 @@
       resultLink.target = '_blank';
       resultLink.textContent = response.word;
       result.appendChild(resultLink);
+      voiceUrl = '';
       if (response.matching[0] > 0) {
         const voice = document.createElement('div');
         voice.className = 'gotthai-bubble-voice';
-        const voiceData = isSecureDomain ? null : new Audio(url + response.voice);
+        voiceUrl = url + response.voice;
+        // const voiceData = isSecureDomain ? null : new Audio(voiceUrl);
         // background.jsで音声再生する場合は0.3秒ぐらい遅くなる
         voice.addEventListener("click", ()=>{ 
-          isSecureDomain ? chrome.runtime.sendMessage({'voiceUrl': url + response.voice}, ()=>{}) : voiceData.play();
-        });
+        //   isSecureDomain ? chrome.runtime.sendMessage({'voiceUrl': voiceUrl}, ()=>{}) : voiceData.play();
+          // chrome.runtime.sendMessage({'voiceUrl': voiceUrl}, response =>{
+            // console.log(response.voiceBase64);
+            // const voiceData = new Audio(response.voiceBase64);
+            // voiceData.play();
+            // get_voice();
+            chrome.runtime.sendMessage({},()=>{});
+          });
+        // });
         result.appendChild(voice);
       }
       const pronunciation = document.createElement('div');
