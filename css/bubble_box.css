@@ -1,6 +1,6 @@
 /* 他のcssに影響を受けないように全classにmarginとpaddingを指定 */
 
-.gotthai-bubble-box {
+#gotthai-bubble-box {
   position: absolute;
   margin:0px;
   padding: 0px 5px 5px 5px;
@@ -12,15 +12,15 @@
   z-index:10000;
 }
 
-.gotthai-bubble-box a:hover {
+#gotthai-bubble-box a:hover {
   color: #0d49b1;
 }
 
-.gotthai-bubble-box a:visited {
+#gotthai-bubble-box a:visited {
   color: #3070df;
 }
 
-.gotthai-bubble-item-name {
+#gotthai-bubble-item-name {
   margin: 5px 0px 0px 0px;
   padding: 1px 1px;
   font-size: 9px;
@@ -30,14 +30,14 @@
   border-radius: 4px;
 }
 
-.gotthai-bubble-selected-text {
+#gotthai-bubble-selected-text {
   margin: 0px;
   padding: 0px;
   font-size: 20px;
   color: black;
 }
 
-.gotthai-bubble-result {
+#gotthai-bubble-result {
   margin: 0px;
   padding: 0px;
   font-size: 20px;
@@ -47,7 +47,7 @@
   align-items: center;
 }
 
-.gotthai-bubble-result a {
+#gotthai-bubble-result a {
   margin: 0px 5px 0px 0px;
   padding: 0px;
   font-family: 'Segoe UI', Geneva, Verdana, sans-serif;
@@ -55,7 +55,7 @@
   text-decoration:none;
 }
 
-.gotthai-bubble-voice {
+#gotthai-bubble-voice {
   margin: 0px;
   padding: 0px;
   width: 22px;
@@ -68,11 +68,11 @@
   cursor : pointer;
 }
 
-.gotthai-bubble-voice:hover {
+#gotthai-bubble-voice:hover {
 	opacity: 0.9 ;
 }
 
-.gotthai-bubble-pronunciation {
+#gotthai-bubble-pronunciation {
   margin: 0px;
   padding: 0px;
   font-size: 15px;
@@ -80,7 +80,7 @@
   color: black;
 }
 
-.gotthai-bubble-katakana {
+#gotthai-bubble-katakana {
   margin: 0px;
   padding: 0px;
   font-size: 10px;
@@ -88,7 +88,7 @@
   color: black;
 }
 
-.gotthai-bubble-meaning {
+#gotthai-bubble-meaning {
   font-size: 12px;
   font-family: Arial, Helvetica, sans-serif;
   color: black;
@@ -96,42 +96,42 @@
   padding: 0px;
 }
 
-.gotthai-bubble-meaning ol{
+#gotthai-bubble-meaning ol{
   margin: 0px;
   padding: 0px 0px 0px 15px;
   list-style: decimal;
 }
-.gotthai-bubble-meaning li{
+#gotthai-bubble-meaning li{
   margin: 0px;
   padding: 0px;
   list-style: decimal;
 }
 
-.gotthai-bubble-matching {
+#gotthai-bubble-matching {
   margin: 5px 0px 0px 0px;
   padding: 0px;
   font-size: 10px;
   font-family: Arial, Helvetica, sans-serif;
 }
 
-.gotthai-bubble-matching a {
+#gotthai-bubble-matching a {
   color: #3070df;
   text-decoration:none;
 }
 
-.gotthai-bubble-notice {
+#gotthai-bubble-notice {
   margin: 0px;
   padding: 0px;
   font-size: 13px;
   font-family: Arial, Helvetica, sans-serif;
   color: black;
 }
-.gotthai-bubble-notice a {
+#gotthai-bubble-notice a {
   font-size: 20px;
   color: #3070df;
   text-decoration:none;
 }
-.gotthai-bubble-error {
+#gotthai-bubble-error {
   margin: 10px 0px 0px 0px;
   padding: 0px;
   font-size: 13px;
