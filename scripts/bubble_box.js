@@ -5,6 +5,7 @@
   const url2 = 'https://www.gotthai.net/search_all?utf8=%E2%9C%93&search_form_all%5Bkeyword%5D=';
   const characterLimit = 20;
   const settings = {};
+  
   // 設定読み込み
   document.onmousedown = ()=>{
     chrome.storage.local.get(null, (storage)=>{
@@ -22,8 +23,8 @@
     // 吹き出し上のクリックは何もせず終了
     if (e.path.includes(previousBubble)) return;
     // 前回のアンカーと吹き出し削除
-    previousAnchor && previousAnchor.remove();
-    previousBubble && previousBubble.remove();
+    if (previousAnchor) previousAnchor.remove();
+    if (previousBubble) previousBubble.remove();
     // メイン処理
     if (kw.trim() !== '' && settings['bubbleFunction'] && isThai(kw) && !isFormArea()) {
       const anchorRect = setAnchor(selection);
@@ -31,8 +32,8 @@
         const boxElm = createErrorBox(kw);
         setBubbleBox(anchorRect, boxElm);
       } else {
-          chrome.runtime.sendMessage({'keyword': kw}, response =>{
-            const boxElm = response.success ? createBubbleBox(kw, response) : createErrorBox(kw);
+          chrome.runtime.sendMessage({'keyword': kw}, res =>{
+            const boxElm = res.success ? createBubbleBox(kw, res) : createErrorBox(kw);
             setBubbleBox(anchorRect, boxElm);
         });
       }
@@ -57,97 +58,48 @@
 
   // 例外処理通知吹き出しDOM作成
   const createErrorBox = kw =>{
-    const box = document.createElement('div');
-    box.id = 'gotthai-bubble-box';
-    const error = document.createElement('div');
-    error.id = 'gotthai-bubble-error';
-    if (kw.length > characterLimit) {
-      error.textContent = characterLimit + '文字以上は検索できません。';
-    } else {
-      error.textContent = 'ごったいに接続できませんでした。';
-    }
-    const itemName = document.createElement('div');
-    itemName.id = 'gotthai-bubble-item-name';
-    itemName.textContent = '選択文字列';
-    const selectedText = document.createElement('div');
-    selectedText.id = 'gotthai-bubble-selected-text';
-    selectedText.textContent = kw;
-    box.append(error, itemName, selectedText);
+    const box = creElm({tag: 'div', id: 'gotthai-bubble-box', style: 'visibility: hidden', ap: document.body});
+    const error = creElm({tag: 'div', id: 'gotthai-bubble-error', tx: 'ごったいに接続できませんでした。', ap: box});
+    if (kw.length > characterLimit)  error.textContent = characterLimit + '文字以上は検索できません。';
+    creElm({tag: 'div', id: 'gotthai-bubble-item-name', tx: '選択文字列', ap: box});
+    creElm({tag: 'div', id: 'gotthai-bubble-selected-text', tx: kw, ap: box});
     return box;
   }
-  
+
   // 検索結果吹き出しDOM作成
-  const createBubbleBox = (kw, response)=>{
-    const box = document.createElement('div');
-    box.id = 'gotthai-bubble-box';
-    if (response.matching[0] == 0 && response.matching[1] == 0) {
-      const itemName = document.createElement('div');
-      itemName.id = 'gotthai-bubble-item-name';
-      itemName.textContent = '選択文字列';
-      const notice = document.createElement('div');
-      notice.id = 'gotthai-bubble-notice';
-      notice.innerHTML = '<a href="' + url2 + kw + '" target="_blank">' + kw +'</a><br>は見つかりませんでした。';
-      box.append(itemName, notice);
+  const createBubbleBox = (kw, res)=>{
+    const box = creElm({tag: 'div', id: 'gotthai-bubble-box', style: 'visibility: hidden', ap: document.body});
+    if (res.matching[0] > 0 || res.matching[1] > 0) {
+      creElm({tag: 'div', id: 'gotthai-bubble-item-name', tx: '検索結果', ap: box});
+      const result = creElm({tag: 'div', id: 'gotthai-bubble-result', ap: box});
+      creElm({tag: 'a', id: 'gotthai-bubble-result', tx: res.word, href: url+res.href, ap: result});
+      if (res.matching[0] > 0) {
+        const voice = creElm({tag:'div', id:'gotthai-bubble-voice', ap:result});
+        voice.addEventListener("click", ()=> chrome.runtime.sendMessage('play'));
+      }
+      creElm({tag: 'div', id: 'gotthai-bubble-pronunciation', tx: res.pronunciation, ap: box});
+      if (res.matching[0] > 0) creElm({tag: 'div', id: 'gotthai-bubble-katakana', tx: res.katakana, ap: box});
+      creElm({tag: 'div', id: 'gotthai-bubble-item-name', tx: '意味', ap: box});
+      const meaning = creElm({tag: 'div', id: 'gotthai-bubble-meaning', tx: res.meaning, ap: box});
+      if (res.matching[0] > 0) {
+        meaning.textContent = '';
+        creElm({tag: 'ol', id: 'gotthai-bubble-meaning', html:res.meaning, ap: meaning});
+      }
+      creElm({tag: 'div', id: 'gotthai-bubble-item-name', tx: '選択文字列', ap: box});
+      creElm({tag: 'div', id: 'gotthai-bubble-selected-text', tx: kw, ap: box});
+      const matching = creElm({tag: 'div', id: 'gotthai-bubble-matching', ap: box});
+      creElm({tag: 'a', tx: `タイ語${res.matching[0]}件、例文${res.matching[1]}件`, href: url2 + kw, ap: matching});
     } else {
-      const itemName1 = document.createElement('div');
-      itemName1.id = 'gotthai-bubble-item-name';
-      itemName1.textContent = '検索結果';
-      const result = document.createElement('div');
-      result.id = 'gotthai-bubble-result';
-      const resultLink = document.createElement('a');
-      resultLink.href = url + response.href;
-      resultLink.target = '_blank';
-      resultLink.textContent = response.word;
-      result.appendChild(resultLink);
-      if (response.matching[0] > 0) {
-        const voice = document.createElement('div');
-        voice.id = 'gotthai-bubble-voice';
-        voice.addEventListener("click", ()=>{ 
-          chrome.runtime.sendMessage({},()=>{});
-        });
-        result.appendChild(voice);
-      }
-      const pronunciation = document.createElement('div');
-      pronunciation.id = 'gotthai-bubble-pronunciation';
-      pronunciation.textContent = response.pronunciation;
-      const katakana = document.createElement('div');
-      if (response.matching[0] > 0) {
-        katakana.id = 'gotthai-bubble-katakana';
-        katakana.textContent = response.katakana;
-        box.appendChild(katakana);
-      }
-      const itemName2 = itemName1.cloneNode(true);
-      itemName2.textContent = '意味';
-      const meaning = document.createElement('div');
-      meaning.id = 'gotthai-bubble-meaning';
-      if (response.matching[0] > 0) {
-        const ol = document.createElement('ol');
-        ol.innerHTML = response.meaning;
-        meaning.appendChild(ol);
-      } else {
-        meaning.textContent = response.meaning;
-      }
-      const itemName3 = itemName1.cloneNode(true);
-      itemName3.textContent = '選択文字列';
-      const selectedText = document.createElement('div');
-      selectedText.id = 'gotthai-bubble-selected-text';
-      selectedText.textContent = kw;
-      const matching = document.createElement('div');
-      matching.id = 'gotthai-bubble-matching';
-      const matchingLink = document.createElement('a');
-      matchingLink.href = url2 + kw;
-      matchingLink.target = '_blank';
-      matchingLink.textContent = `タイ語${response.matching[0]}件、例文${response.matching[1]}件`;
-      matching.appendChild(matchingLink);
-      box.append(itemName1, result, pronunciation, katakana, itemName2, meaning, itemName3, selectedText, matching);
+      creElm({tag: 'div', id: 'gotthai-bubble-item-name', tx: '選択文字列', ap: box});
+      const notice = creElm({tag: 'div', id: 'gotthai-bubble-notice', ap: box});
+      creElm({tag: 'a', href: url2 + kw, tx: kw, ap:notice});
+      notice.innerHTML += ('<br>は見つかりませんでした。');
     }
     return box;
   }
 
   // 吹き出しを見やすい位置に配置
   const setBubbleBox = (aRect, box)=>{
-    document.body.appendChild(box);
-    box.style.visibility = 'hidden';
     const bRect = box.getBoundingClientRect();
     const ww = document.documentElement.clientWidth;
     const wh = document.documentElement.clientHeight;
@@ -172,8 +124,6 @@
   // 選択範囲の位置にアンカーを打つ
   const setAnchor = (selection)=>{
     const selectionRect = selection.getRangeAt(0).getBoundingClientRect();
-    const anchor = document.createElement('div');
-    anchor.id = 'gotthai-mini-anchor';
     const styles = (`
       position: absolute;
       top: ${window.pageYOffset + selectionRect.top}px;
@@ -181,10 +131,25 @@
       width: ${selectionRect.width}px;
       height: ${selectionRect.height}px;
     `);
-    anchor.style = styles;
-    document.body.appendChild(anchor);
+    const anchor = creElm({tag: 'div', id: 'gotthai-mini-anchor', style: styles, ap: document.body});
     return anchor.getBoundingClientRect();
   }
+
+  // element作成簡略化
+  const creElm = ({tag, id, tx, href, html, style, ap})=>{
+    const elm = document.createElement(tag);
+    if (id) elm.id = id;
+    if (tx) elm.textContent = tx;
+    if (html) elm.innerHTML += html;
+    if (style) elm.style = style;
+    if (ap) ap.appendChild(elm);
+    if (href) {
+      elm.href = href;
+      elm.target = '_blank';
+    }
+    return elm;
+  }
+
 })();
 
 

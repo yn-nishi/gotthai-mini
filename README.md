@@ -44,6 +44,8 @@
 ---
 
 ### 変更履歴 (Update history)
+v2.0.1 リファクタリング
+v2.0.0 音声の読み込み速度向上
 v1.0.3 twitterで音声再生されない問題解消  
 v1.0.2 GoogleAnalitics追加 & GitHubにinitial commit  
 v1.0.1 リファクタリング & Googleウェブストア公開  

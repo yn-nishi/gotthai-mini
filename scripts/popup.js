@@ -15,4 +15,3 @@ chrome.storage.local.get(null, (storage)=>{
 bubble.addEventListener('change', ()=>{
   chrome.storage.local.set({'bubbleFunction': bubble.checked});
 });
-

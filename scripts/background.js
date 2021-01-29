@@ -1,7 +1,7 @@
 // Copyright 2021 yn-nishi All Rights Reserved.
 "use strict";
 const url = 'https://www.gotthai.net/search_all?utf8=%E2%9C%93&search_form_all%5Bkeyword%5D=';
-const response = {};
+const res = {};
 let voiceData;
 // 設定初期化
 chrome.storage.local.get(null, (storage)=>{
@@ -11,36 +11,36 @@ chrome.storage.local.get(null, (storage)=>{
 });
 
 // メイン処理
-chrome.runtime.onMessage.addListener((request, sender, sendResponse)=>{
-  if (request.keyword) {
-    // 吹き出しの表示命令後、予め音声を読み込んでおく(ユーザーの体感速度向上のため)
-    searchThai(request, sender, sendResponse)
+chrome.runtime.onMessage.addListener((req, sender, sendResponse)=>{
+  // 吹き出しの表示命令後、予め音声を読み込んでおく(ユーザー体感速度向上のため)
+  if (req.keyword) {
+    searchThai(req, sender, sendResponse)
     .then((audioSrc)=>{getVoice(audioSrc)});
-  } else {
-    // セキュリティが強いサイトはbubble_box.jsで音声再生できないので、background.jsで再生
+    // bubble_box.jsで音声再生できないセキュリティが強いサイトもあるので、background.jsで再生
+  } else if(req === 'play') {
     voiceData.play();
   }
   return true;
 });
 
 // タイ語検索
-const searchThai = (request, sender, sendResponse)=>{
+const searchThai = (req, sender, sendResponse)=>{
   return new Promise((resolve) => { 
     const xhr = new XMLHttpRequest();
-    const kw = request.keyword;
+    const kw = req.keyword;
     xhr.open("GET", url + kw, true);
     xhr.onreadystatechange = ()=>{
       if (xhr.readyState == 4) {
         if (xhr.status === 200) {
-          response.success = true;
+          res.success = true;
           const parser = new DOMParser();
           const dom = parser.parseFromString(xhr.responseText, "text/html");
           scraping(dom);
-          sendResponse(response);
-          response.voice && resolve(response.voice);
+          sendResponse(res);
+          res.voice && resolve(res.voice);
         } else {
-          response.success = false;
-          sendResponse(response);
+          res.success = false;
+          sendResponse(res);
         }
       }
     }
@@ -57,9 +57,7 @@ const getVoice = (audioSrc) => {
     if (xhr.readyState == 4 && xhr.status === 200) {
       var reader = new FileReader();
       reader.readAsDataURL(xhr.response);
-      reader.onloadend = function() {
-        voiceData = new Audio(reader.result);
-      }
+      reader.onloadend = ()=> voiceData = new Audio(reader.result);
     }
   }
   xhr.send();
@@ -71,23 +69,23 @@ const getVoice = (audioSrc) => {
 const scraping = (dom)=>{
   const matching = dom.getElementsByClassName('found-count');
   if (matching.length === 0) {
-    response.success = false;
+    res.success = false;
     return true;
   }
-  response.matching = [matching[0].textContent - 0, matching[1].textContent - 0];
-  if (response.matching[0] > 0 || response.matching[1] > 0){
+  res.matching = [matching[0].textContent - 0, matching[1].textContent - 0];
+  if (res.matching[0] > 0 || res.matching[1] > 0){
     dom = dom.getElementsByTagName('td');
-    response.href = dom[0].getElementsByTagName('a')[0].getAttribute('href');
-    response.word = dom[0].getElementsByTagName('a')[0].textContent;
-    response.pronunciation = dom[0].getElementsByClassName('pronunciation')[0].textContent;
-    if (response.matching[0] > 0) {
-      response.voice = dom[0].getElementsByTagName('audio')[0].getAttribute('src');
-      response.katakana = dom[0].getElementsByClassName('katakana katakana-sm')[0].textContent;
-      response.meaning = dom[1].getElementsByClassName('ol ol-narrow')[0].innerHTML;
+    res.href = dom[0].getElementsByTagName('a')[0].getAttribute('href');
+    res.word = dom[0].getElementsByTagName('a')[0].textContent;
+    res.pronunciation = dom[0].getElementsByClassName('pronunciation')[0].textContent;
+    if (res.matching[0] > 0) {
+      res.voice = dom[0].getElementsByTagName('audio')[0].getAttribute('src');
+      res.katakana = dom[0].getElementsByClassName('katakana katakana-sm')[0].textContent;
+      res.meaning = dom[1].getElementsByClassName('ol ol-narrow')[0].innerHTML;
     } else {
-      response.meaning = dom[1].textContent;
-      response.voice = false;
-      response.katakana = false;
+      res.meaning = dom[1].textContent;
+      res.voice = false;
+      res.katakana = false;
     }
   }
 }
