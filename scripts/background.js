@@ -10,62 +10,64 @@ chrome.storage.local.get(null, (storage)=>{
   }
 });
 
-// タイ語検索
-new Promise((resolve) => { 
-      chrome.runtime.onMessage.addListener((request, sender, sendResponse)=>{
-      const xhr = new XMLHttpRequest();
-      const kw = request.keyword;
-      xhr.open("GET", url + kw, true);
-      xhr.onreadystatechange = ()=>{
-        if (xhr.readyState == 4) {
-          if (xhr.status === 200) {
-            response.success = true;
-            const parser = new DOMParser();
-            const dom = parser.parseFromString(xhr.responseText, "text/html");
-            scraping(dom);
-            console.log(response.voice);
-            resolve(response.voice);
-            sendResponse(response);
-          } else {
-            response.success = false;
-            sendResponse(response);
-          }
-        }
-      }
-    console.log('backA')
-    console.log('backA2')
-    xhr.send();
+// メイン処理
+chrome.runtime.onMessage.addListener((request, sender, sendResponse)=>{
+  if (request.keyword) {
+    // 吹き出しの表示命令後、予め音声を読み込んでおく(ユーザーの体感速度向上のため)
+    searchThai(request, sender, sendResponse)
+    .then((audioSrc)=>{getVoice(audioSrc)});
+  } else {
+    // セキュリティが強いサイトはbubble_box.jsで音声再生できないので、background.jsで再生
+    voiceData.play();
+  }
   return true;
-  })
-})
-.then((voiceUrl) => {
-    console.log('#33')
-    console.log(voiceUrl);
-    console.log('#34')
-    if (voiceUrl) {
-    setTimeout(() => {
-      const xhr = new XMLHttpRequest();
-      xhr.open("GET", 'https://www.gotthai.net' + voiceUrl, true);
-      xhr.responseType = 'blob';
-      xhr.onreadystatechange = ()=>{
-        if (xhr.readyState == 4 && xhr.status === 200) {
-          var reader = new FileReader();
-          console.log(xhr.response);
-          reader.readAsDataURL(xhr.response);
-          reader.onloadend = function() {
-            voiceData = new Audio(reader.result);
-            console.log(voiceData);
-            voiceData.play();
-          }
-        }
-      }
-      xhr.send();
-    },1000);
-    }
 });
 
+// タイ語検索
+const searchThai = (request, sender, sendResponse)=>{
+  return new Promise((resolve) => { 
+    const xhr = new XMLHttpRequest();
+    const kw = request.keyword;
+    xhr.open("GET", url + kw, true);
+    xhr.onreadystatechange = ()=>{
+      if (xhr.readyState == 4) {
+        if (xhr.status === 200) {
+          response.success = true;
+          const parser = new DOMParser();
+          const dom = parser.parseFromString(xhr.responseText, "text/html");
+          scraping(dom);
+          sendResponse(response);
+          response.voice && resolve(response.voice);
+        } else {
+          response.success = false;
+          sendResponse(response);
+        }
+      }
+    }
+  xhr.send();
+  });
+};
 
-// スクレイピング
+// 音声データを読み込んでBase64形式で保持
+const getVoice = (audioSrc) => {
+  const xhr = new XMLHttpRequest();
+  xhr.open("GET", 'https://www.gotthai.net' + audioSrc, true);
+  xhr.responseType = 'blob';
+  xhr.onreadystatechange = ()=>{
+    if (xhr.readyState == 4 && xhr.status === 200) {
+      var reader = new FileReader();
+      reader.readAsDataURL(xhr.response);
+      reader.onloadend = function() {
+        voiceData = new Audio(reader.result);
+      }
+    }
+  }
+  xhr.send();
+  //GAも少し重たいのでこのタイミングで読み込む
+  googleAnalytics();
+}
+
+// ウェブスクレイピング
 const scraping = (dom)=>{
   let matching = dom.getElementsByClassName('found-count');
   if (matching.length === 0) {
@@ -91,89 +93,27 @@ const scraping = (dom)=>{
 }
 
 // Google Analytics
-(function(i, s, o, g, r, a, m) {
-  i['GoogleAnalyticsObject'] = r;
-  (i[r] =
-    i[r] ||
-    function() {
-      (i[r].q = i[r].q || []).push(arguments);
-    }),
-  (i[r].l = 1 * new Date());
-  (a = s.createElement(o)), (m = s.getElementsByTagName(o)[0]);
-  a.async = 1;
-  a.src = g;
-  m.parentNode.insertBefore(a, m);
-})(
-  window,
-  document,
-  'script',
-  'https://ssl.google-analytics.com/analytics.js',
-  'ga'
-);
-ga('create', 'UA-187863811-1', 'auto');
-ga('set', 'checkProtocolTask', null);
-ga('send', 'pageview', 'background.js');
-
-// function gegege (request, sender, sendResponse) {
-  
-//   const xhr = new XMLHttpRequest();
-//   const kw = request.keyword;
-//   xhr.open("GET", url + kw, true);
-//   xhr.onreadystatechange = ()=>{
-//     if (xhr.readyState == 4) {
-//       if (xhr.status === 200) {
-//         response.success = true;
-//         const parser = new DOMParser();
-//         let dom = parser.parseFromString(xhr.responseText, "text/html");
-//         scraping(dom);
-//         sendResponse(response);
-//       } else {
-//         response.success = false;
-//         sendResponse(response);
-//       }
-//     }
-//   }
-//   xhr.send();
-// }
-
-
-  // } else {
-  //   const xhr = new XMLHttpRequest();
-  //   xhr.open("GET", request.voiceUrl, true);
-  //   xhr.responseType = 'blob';
-  //   xhr.onreadystatechange = ()=>{
-  //     if (xhr.readyState == 4 && xhr.status === 200) {
-  //       var reader = new FileReader();
-  //       console.log(xhr.response);
-  //       reader.readAsDataURL(xhr.response);
-  //       reader.onloadend = function() {
-  //       response.voiceBase64 = reader.result;
-  //         sendResponse(response);
-  //       }
-  //     }
-  //   }
-  //   xhr.send();
-
-
-
-  // const promise = new Promise((resolve, reject) => { // #1
-  //   console.log('#1')
-  //   resolve('Hello ')
-  // })
-  
-  // promise.then((msg) => { // #2
-  //   return new Promise((resolve, reject) => {
-  //     setTimeout(() => {
-  //       console.log('#2')
-  //       resolve(msg + "I'm ")
-  //     }, 3000)
-  //   })
-  // }).then((msg) => { // #3
-  //   console.log('#3')
-  //   return msg + 'Jeccy.'
-  // }).then((msg) => { // #4
-  //   console.log('#4')
-  //   console.log(msg)
-  // }).catch(() => { // エラーハンドリング
-  //   console.error('Something wrong!')
-  // })
+const googleAnalytics = ()=>{
+  (function(i, s, o, g, r, a, m) {
+    i['GoogleAnalyticsObject'] = r;
+    (i[r] =
+      i[r] ||
+      function() {
+        (i[r].q = i[r].q || []).push(arguments);
+      }),
+    (i[r].l = 1 * new Date());
+    (a = s.createElement(o)), (m = s.getElementsByTagName(o)[0]);
+    a.async = 1;
+    a.src = g;
+    m.parentNode.insertBefore(a, m);
+  })(
+    window,
+    document,
+    'script',
+    'https://ssl.google-analytics.com/analytics.js',
+    'ga'
+  );
+  ga('create', 'UA-187863811-1', 'auto');
+  ga('set', 'checkProtocolTask', null);
+  ga('send', 'pageview', 'background.js');
+}
