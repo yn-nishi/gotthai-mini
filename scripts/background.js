@@ -69,7 +69,7 @@ const getVoice = (audioSrc) => {
 
 // ウェブスクレイピング
 const scraping = (dom)=>{
-  let matching = dom.getElementsByClassName('found-count');
+  const matching = dom.getElementsByClassName('found-count');
   if (matching.length === 0) {
     response.success = false;
     return true;

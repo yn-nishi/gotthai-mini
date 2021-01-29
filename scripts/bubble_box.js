@@ -31,7 +31,6 @@
         const boxElm = createErrorBox(kw);
         setBubbleBox(anchorRect, boxElm);
       } else {
-      //   new Promise((resolve) => { 
           chrome.runtime.sendMessage({'keyword': kw}, response =>{
             const boxElm = response.success ? createBubbleBox(kw, response) : createErrorBox(kw);
             setBubbleBox(anchorRect, boxElm);
@@ -60,43 +59,41 @@
   const createErrorBox = kw =>{
     const box = document.createElement('div');
     box.id = 'gotthai-bubble-box';
-    box.className = 'gotthai-bubble-box';
     const error = document.createElement('div');
-    error.className = 'gotthai-bubble-error';
+    error.id = 'gotthai-bubble-error';
     if (kw.length > characterLimit) {
       error.textContent = characterLimit + '文字以上は検索できません。';
     } else {
       error.textContent = 'ごったいに接続できませんでした。';
     }
     const itemName = document.createElement('div');
-    itemName.className = 'gotthai-bubble-item-name';
+    itemName.id = 'gotthai-bubble-item-name';
     itemName.textContent = '選択文字列';
     const selectedText = document.createElement('div');
-    selectedText.className = 'gotthai-bubble-selected-text';
+    selectedText.id = 'gotthai-bubble-selected-text';
     selectedText.textContent = kw;
     box.append(error, itemName, selectedText);
     return box;
   }
-
+  
   // 検索結果吹き出しDOM作成
   const createBubbleBox = (kw, response)=>{
     const box = document.createElement('div');
     box.id = 'gotthai-bubble-box';
-    box.className = 'gotthai-bubble-box';
     if (response.matching[0] == 0 && response.matching[1] == 0) {
       const itemName = document.createElement('div');
-      itemName.className = 'gotthai-bubble-item-name';
+      itemName.id = 'gotthai-bubble-item-name';
       itemName.textContent = '選択文字列';
       const notice = document.createElement('div');
-      notice.className = 'gotthai-bubble-notice';
+      notice.id = 'gotthai-bubble-notice';
       notice.innerHTML = '<a href="' + url2 + kw + '" target="_blank">' + kw +'</a><br>は見つかりませんでした。';
       box.append(itemName, notice);
     } else {
       const itemName1 = document.createElement('div');
-      itemName1.className = 'gotthai-bubble-item-name';
+      itemName1.id = 'gotthai-bubble-item-name';
       itemName1.textContent = '検索結果';
       const result = document.createElement('div');
-      result.className = 'gotthai-bubble-result';
+      result.id = 'gotthai-bubble-result';
       const resultLink = document.createElement('a');
       resultLink.href = url + response.href;
       resultLink.target = '_blank';
@@ -104,25 +101,25 @@
       result.appendChild(resultLink);
       if (response.matching[0] > 0) {
         const voice = document.createElement('div');
-        voice.className = 'gotthai-bubble-voice';
+        voice.id = 'gotthai-bubble-voice';
         voice.addEventListener("click", ()=>{ 
-            chrome.runtime.sendMessage({},()=>{});
-          });
+          chrome.runtime.sendMessage({},()=>{});
+        });
         result.appendChild(voice);
       }
       const pronunciation = document.createElement('div');
-      pronunciation.className = 'gotthai-bubble-pronunciation';
+      pronunciation.id = 'gotthai-bubble-pronunciation';
       pronunciation.textContent = response.pronunciation;
       const katakana = document.createElement('div');
       if (response.matching[0] > 0) {
-        katakana.className = 'gotthai-bubble-katakana';
+        katakana.id = 'gotthai-bubble-katakana';
         katakana.textContent = response.katakana;
         box.appendChild(katakana);
       }
       const itemName2 = itemName1.cloneNode(true);
       itemName2.textContent = '意味';
       const meaning = document.createElement('div');
-      meaning.className = 'gotthai-bubble-meaning';
+      meaning.id = 'gotthai-bubble-meaning';
       if (response.matching[0] > 0) {
         const ol = document.createElement('ol');
         ol.innerHTML = response.meaning;
@@ -133,10 +130,10 @@
       const itemName3 = itemName1.cloneNode(true);
       itemName3.textContent = '選択文字列';
       const selectedText = document.createElement('div');
-      selectedText.className = 'gotthai-bubble-selected-text';
+      selectedText.id = 'gotthai-bubble-selected-text';
       selectedText.textContent = kw;
       const matching = document.createElement('div');
-      matching.className = 'gotthai-bubble-matching';
+      matching.id = 'gotthai-bubble-matching';
       const matchingLink = document.createElement('a');
       matchingLink.href = url2 + kw;
       matchingLink.target = '_blank';
