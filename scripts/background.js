@@ -32,14 +32,14 @@ const searchThai = (req, sender, sendResponse)=>{
     xhr.onreadystatechange = ()=>{
       if (xhr.readyState == 4) {
         if (xhr.status === 200) {
-          res.success = true;
+          res.isSuccess = true;
           const parser = new DOMParser();
           const dom = parser.parseFromString(xhr.responseText, "text/html");
           scraping(dom);
           sendResponse(res);
           res.voice && resolve(res.voice);
         } else {
-          res.success = false;
+          res.isSuccess = false;
           sendResponse(res);
         }
       }
@@ -69,7 +69,7 @@ const getVoice = (audioSrc) => {
 const scraping = (dom)=>{
   const matching = dom.getElementsByClassName('found-count');
   if (matching.length === 0) {
-    res.success = false;
+    res.isSuccess = false;
     return true;
   }
   res.matching = [matching[0].textContent - 0, matching[1].textContent - 0];

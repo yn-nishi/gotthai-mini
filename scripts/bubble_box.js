@@ -33,7 +33,7 @@
         setBubbleBox(anchorRect, boxElm);
       } else {
           chrome.runtime.sendMessage({'keyword': kw}, res =>{
-            const boxElm = res.success ? createBubbleBox(kw, res) : createErrorBox(kw);
+            const boxElm = res.isSuccess ? createBubbleBox(kw, res) : createErrorBox(kw);
             setBubbleBox(anchorRect, boxElm);
         });
       }
