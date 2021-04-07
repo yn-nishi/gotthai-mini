@@ -40,20 +40,19 @@
     }
   }
 
-  // タイ文字:3585 ~ 3675 数字等:48~57
+  // タイ文字:3585 ~ 3675
   const isThai = kw =>{
     const removeSpace = kw.replace(/\s+/g, "");
     for (var i = 0, t = 0; i < removeSpace.length; ++i) {
       const char = removeSpace[i].charCodeAt();
-      if ((3584 < char && char < 3676) || (47 < char && char < 58 )) ++t;
+      if (3584 < char && char < 3676) ++t;
     }
     return t / i >= 0.5 ? true : false;
   }
 
-  //<textarea>と<input>は検索しない
+  // 入力中の文字には反応しない
   const isFormArea = ()=>{
-    const elmName = document.activeElement.nodeName;
-    return  elmName === 'TEXTAREA' || elmName === 'INPUT';
+    return document.activeElement.isContentEditable;
   }
 
   // 例外処理通知吹き出しDOM作成
