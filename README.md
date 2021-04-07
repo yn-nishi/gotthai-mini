@@ -8,10 +8,6 @@
 (A Chrome Extension that you can look up a dictionary just by dragging Thai.)
 
 辞書の機能に[ごったい](https://www.gotthai.net/)様を使用させて頂いています。  
-この拡張機能の開発に関して[ごったい](https://www.gotthai.net/)様は関係ありません。  
-この拡張機能に関するお問い合わせは[にし](https://twitter.com/yn_nishi)までお願いします。  
-誠に勝手ながらこの場をお借りして[ごったい](https://www.gotthai.net/)様に感謝申し上げます。
-สอบเชื้อไวรัส
 ---
 
 ### デモ映像 (Demonstration)
