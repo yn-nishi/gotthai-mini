@@ -8,6 +8,7 @@
 (A Chrome Extension that you can look up a dictionary just by dragging Thai.)
 
 辞書の機能に[ごったい](https://www.gotthai.net/)様を使用させて頂いています。  
+
 ---
 
 ### デモ映像 (Demonstration)
