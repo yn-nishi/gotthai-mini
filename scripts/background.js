@@ -19,7 +19,6 @@ chrome.offscreen.createDocument({
 chrome.runtime.onMessage.addListener((req, sender, sendResponse)=>{
   (async () => {
     let res = {};
-    console.log(req);
     if (req.keyword) {
       let keywordFetch = await fetch(url + req.keyword);
       if (keywordFetch.ok) {

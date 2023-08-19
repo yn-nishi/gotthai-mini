@@ -33,7 +33,6 @@
         setBubbleBox(anchorRect, boxElm);
       } else {
           chrome.runtime.sendMessage({'keyword': kw}, res => {
-          console.log(res);
           if (res.isSuccess) scraping(res);
           const boxElm = res.isSuccess ? createBubbleBox(kw, res) : createErrorBox(kw);
           setBubbleBox(anchorRect, boxElm);
@@ -42,7 +41,7 @@
     }
   }
 
-const scraping = (res)=>{
+const scraping = res =>{
   const parser = new DOMParser();
   let dom = parser.parseFromString(res.data, "text/html");
   const matching = dom.getElementsByClassName('found-count');
@@ -101,9 +100,11 @@ const scraping = (res)=>{
       const result = creElm({tag: 'div', id: 'gotthai-bubble-result', ap: box});
       creElm({tag: 'a', id: 'gotthai-bubble-result', tx: res.word, href: url+res.href, ap: result});
       if (res.voiceUrl) {
-        const voice = creElm({tag:'div', id:'gotthai-bubble-voice', ap:result});
+        const voice = creElm({tag:'span', id:'gotthai-bubble-voice', ap:result});
         voice.addEventListener("click", ()=> chrome.runtime.sendMessage({'voiceBlob': res.voiceBlob}));
       }
+      const copy = creElm({tag:'span', id:'gotthai-bubble-copy', ap:result});
+      copy.addEventListener("click", e => clipboard(e, res.word));
       creElm({tag: 'div', id: 'gotthai-bubble-pronunciation', tx: res.pronunciation, ap: box});
       if (res.matching[0] > 0) creElm({tag: 'div', id: 'gotthai-bubble-katakana', tx: res.katakana, ap: box});
       creElm({tag: 'div', id: 'gotthai-bubble-item-name', tx: '意味', ap: box});
@@ -175,6 +176,32 @@ const scraping = (res)=>{
       elm.target = '_blank';
     }
     return elm;
+  }
+
+  function clipboard (e, text) {
+    navigator.clipboard.writeText(text);
+    const elm = document.createElement('span');
+    elm.textContent = 'Copied';
+    const styles = (`
+        z-index:10001;
+        position: absolute;
+        top: ${e.clientY + -2}px;
+        left: ${e.clientX + 15}px;
+        color: #0d49b1;
+        font-size: 15px;
+        font-weight: bold;
+        text-shadow:
+          1px 1px 0 #FFF, -1px -1px 0 #FFF,
+          -1px 1px 0 #FFF, 1px -1px 0 #FFF,
+          0px 1px 0 #FFF,  0-1px 0 #FFF,
+          -1px 0 0 #FFF, 1px 0 0 #FFF;
+      `);
+      elm.style = styles;
+    document.body.appendChild(elm);
+    setTimeout(function() {
+      elm.remove();
+    }, 800);
+  
   }
 
 })();
