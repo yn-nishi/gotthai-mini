@@ -1,4 +1,4 @@
-// Copyright 2021 yn-nishi All Rights Reserved.
+// Copyright 2023 yn-nishi All Rights Reserved.
 (function() {
   'use strict';
   const url = 'https://www.gotthai.net';
@@ -21,7 +21,7 @@
     const previousAnchor = document.getElementById('gotthai-mini-anchor');
     const previousBubble = document.getElementById('gotthai-bubble-box');
     // 吹き出し上のクリックは何もせず終了
-    if (e.path.includes(previousBubble)) return;
+    if (previousBubble?.contains(e.target)) return;
     // 前回のアンカーと吹き出し削除
     if (previousAnchor) previousAnchor.remove();
     if (previousBubble) previousBubble.remove();
@@ -32,13 +32,41 @@
         const boxElm = createErrorBox(kw);
         setBubbleBox(anchorRect, boxElm);
       } else {
-          chrome.runtime.sendMessage({'keyword': kw}, res =>{
-            const boxElm = res.isSuccess ? createBubbleBox(kw, res) : createErrorBox(kw);
-            setBubbleBox(anchorRect, boxElm);
+          chrome.runtime.sendMessage({'keyword': kw}, res => {
+          console.log(res);
+          if (res.isSuccess) scraping(res);
+          const boxElm = res.isSuccess ? createBubbleBox(kw, res) : createErrorBox(kw);
+          setBubbleBox(anchorRect, boxElm);
         });
       }
     }
   }
+
+const scraping = (res)=>{
+  const parser = new DOMParser();
+  let dom = parser.parseFromString(res.data, "text/html");
+  const matching = dom.getElementsByClassName('found-count');
+  if (matching.length === 0) {
+    res.isSuccess = false;
+    return true;
+  }
+  res.matching = [matching[0].textContent - 0, matching[1].textContent - 0];
+  if (res.matching[0] > 0 || res.matching[1] > 0){
+    dom = dom.getElementsByTagName('td');
+    res.href = dom[0].getElementsByTagName('a')[0].getAttribute('href');
+    res.word = dom[0].getElementsByTagName('a')[0].textContent;
+    res.pronunciation = dom[0].getElementsByClassName('pronunciation')[0].textContent;
+    if (res.matching[0] > 0) {
+      res.voiceUrl = dom[0].getElementsByTagName('audio')[0]?.getAttribute('src');
+      res.katakana = dom[0].getElementsByClassName('katakana katakana-sm')[0].textContent;
+      res.meaning = dom[1].getElementsByClassName('ol ol-narrow')[0].innerHTML;
+      chrome.runtime.sendMessage({'voiceUrl': res.voiceUrl}, voiceBlob => res.voiceBlob = voiceBlob);
+    } else {
+      res.meaning = dom[1].textContent;
+      res.katakana = false;
+    }
+  }
+}
 
   // タイ文字:3585 ~ 3675
   const isThai = kw =>{
@@ -72,9 +100,9 @@
       creElm({tag: 'div', id: 'gotthai-bubble-item-name', tx: '検索結果', ap: box});
       const result = creElm({tag: 'div', id: 'gotthai-bubble-result', ap: box});
       creElm({tag: 'a', id: 'gotthai-bubble-result', tx: res.word, href: url+res.href, ap: result});
-      if (res.matching[0] > 0) {
+      if (res.voiceUrl) {
         const voice = creElm({tag:'div', id:'gotthai-bubble-voice', ap:result});
-        voice.addEventListener("click", ()=> chrome.runtime.sendMessage('play'));
+        voice.addEventListener("click", ()=> chrome.runtime.sendMessage({'voiceBlob': res.voiceBlob}));
       }
       creElm({tag: 'div', id: 'gotthai-bubble-pronunciation', tx: res.pronunciation, ap: box});
       if (res.matching[0] > 0) creElm({tag: 'div', id: 'gotthai-bubble-katakana', tx: res.katakana, ap: box});

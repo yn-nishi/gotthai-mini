@@ -33,6 +33,7 @@
 #gotthai-bubble-selected-text {
   margin: 0px;
   padding: 0px;
+  font-family: 'Segoe UI', Geneva, Verdana, sans-serif;
   font-size: 20px;
   color: black;
 }
@@ -89,7 +90,6 @@
 }
 
 #gotthai-bubble-meaning {
-  font-size: 12px;
   font-family: Arial, Helvetica, sans-serif;
   color: black;
   margin: 0px;
@@ -102,6 +102,7 @@
   list-style: decimal;
 }
 #gotthai-bubble-meaning li{
+  font-size: 12px;
   margin: 0px;
   padding: 0px;
   list-style: decimal;
