@@ -41,7 +41,7 @@
 #gotthai-bubble-result {
   margin: 0px;
   padding: 0px;
-  font-size: 20px;
+  font-size: 25px;
   display: -webkit-flex;
   display: flex;
   -webkit-align-items: center;
@@ -73,7 +73,11 @@
 	opacity: 0.9 ;
 }
 
-#gotthai-bubble-copy {
+#gotthai-bubble-voice:active {
+  opacity: 0.3;
+}
+
+#gotthai-bubble-copy-thai {
   margin: 0px;
   padding: 0px;
   width: 22px;
@@ -86,8 +90,12 @@
   cursor : pointer;
 }
 
-#gotthai-bubble-copy:hover {
+#gotthai-bubble-copy-thai:hover {
 	opacity: 0.9 ;
+}
+
+#gotthai-bubble-copy-thai:active {
+  opacity: 0.3;
 }
 
 #gotthai-bubble-pronunciation {
@@ -96,6 +104,11 @@
   font-size: 15px;
   font-family: Arial, Helvetica, sans-serif;
   color: black;
+  cursor: default;
+}
+
+#gotthai-bubble-pronunciation:active {
+  opacity: 0.3;
 }
 
 #gotthai-bubble-katakana {

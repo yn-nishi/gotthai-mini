@@ -3,12 +3,13 @@
   "short_name": "mini",
   "author": "yn-nishi",
   "description" : "いつでもあなたにごったいを。",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "manifest_version": 3,
-  "permissions": ["storage", "offscreen"],
+  "permissions": ["activeTab","storage", "offscreen"],
   "background": {
     "service_worker": "scripts/background.js"
   },
+   "host_permissions": ["https://www.gotthai.net/","https://translate.google.com/"],
   "action": {
     "name": "Gotthai-mini",
     "default_popup": "html/popup.html",

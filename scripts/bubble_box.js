@@ -14,6 +14,10 @@
   }
 
   document.onmouseup = e =>{
+    const voices = speechSynthesis.getVoices();
+voices.forEach(v => {
+  console.log(`${v.name} (${v.lang})`);
+});
     // 選択情報取得 kw = keyword
     const selection = window.getSelection();
     const kw = selection.toString();
@@ -45,25 +49,28 @@ const scraping = res =>{
   const parser = new DOMParser();
   let dom = parser.parseFromString(res.data, "text/html");
   const matching = dom.getElementsByClassName('found-count');
+  // ごったいのDOMっぽくなかったら接続できないと返す
   if (matching.length === 0) {
     res.isSuccess = false;
     return true;
   }
+  // scrapting
   res.matching = [matching[0].textContent - 0, matching[1].textContent - 0];
   if (res.matching[0] > 0 || res.matching[1] > 0){
-    dom = dom.getElementsByTagName('td');
-    res.href = dom[0].getElementsByTagName('a')[0].getAttribute('href');
-    res.word = dom[0].getElementsByTagName('a')[0].textContent;
-    res.pronunciation = dom[0].getElementsByClassName('pronunciation')[0].textContent;
+    res.href = dom.querySelector('.thai.thai-md a').getAttribute('href');
+    res.word = dom.querySelector('.thai.thai-md a').textContent;
+    res.pronunciation = dom.querySelector('.pronunciation')?.textContent.trim();
+      res.voiceUrl = dom.querySelector('.thai.thai-md audio').getAttribute('src');
+    // 単語
     if (res.matching[0] > 0) {
-      res.voiceUrl = dom[0].getElementsByTagName('audio')[0]?.getAttribute('src');
-      res.katakana = dom[0].getElementsByClassName('katakana katakana-sm')[0].textContent;
-      res.meaning = dom[1].getElementsByClassName('ol ol-narrow')[0].innerHTML;
-      chrome.runtime.sendMessage({'voiceUrl': res.voiceUrl}, voiceBlob => res.voiceBlob = voiceBlob);
+      res.katakana = dom.querySelector('.katakana.katakana-sm')?.textContent.trim();
+      res.meaning = dom.querySelector('.jp-meaning .ol.ol-narrow')?.innerHTML;
+    // 例文
     } else {
-      res.meaning = dom[1].textContent;
+      res.meaning = dom.querySelector('.jp-meaning')?.textContent.trim();
       res.katakana = false;
     }
+      chrome.runtime.sendMessage({'voiceUrl': res.voiceUrl}, voiceBlobUrl => res.voiceBlobUrl = voiceBlobUrl);
   }
 }
 
@@ -101,11 +108,13 @@ const scraping = res =>{
       creElm({tag: 'a', id: 'gotthai-bubble-result', tx: res.word, href: url+res.href, ap: result});
       if (res.voiceUrl) {
         const voice = creElm({tag:'span', id:'gotthai-bubble-voice', ap:result});
-        voice.addEventListener("click", ()=> chrome.runtime.sendMessage({'voiceBlob': res.voiceBlob}));
+        //voice.addEventListener("click", ()=> chrome.runtime.sendMessage({'voiceBlob': res.voiceBlob}));
+        voice.addEventListener("click", ()=> chrome.runtime.sendMessage({'voiceBlobUrl': res.voiceBlobUrl}));
       }
-      const copy = creElm({tag:'span', id:'gotthai-bubble-copy', ap:result});
+      const copy = creElm({tag:'span', id:'gotthai-bubble-copy-thai', ap:result});
       copy.addEventListener("click", e => clipboard(e, res.word));
-      creElm({tag: 'div', id: 'gotthai-bubble-pronunciation', tx: res.pronunciation, ap: box});
+      const pronunciation = creElm({tag: 'div', id: 'gotthai-bubble-pronunciation', tx: res.pronunciation, ap: box});
+      pronunciation.addEventListener("click", e => clipboard(e, res.pronunciation));
       if (res.matching[0] > 0) creElm({tag: 'div', id: 'gotthai-bubble-katakana', tx: res.katakana, ap: box});
       creElm({tag: 'div', id: 'gotthai-bubble-item-name', tx: '意味', ap: box});
       const meaning = creElm({tag: 'div', id: 'gotthai-bubble-meaning', tx: res.meaning, ap: box});
@@ -180,28 +189,27 @@ const scraping = res =>{
 
   function clipboard (e, text) {
     navigator.clipboard.writeText(text);
-    const elm = document.createElement('span');
-    elm.textContent = 'Copied';
-    const styles = (`
-        z-index:10001;
-        position: absolute;
-        top: ${e.clientY + -2}px;
-        left: ${e.clientX + 15}px;
-        color: #0d49b1;
-        font-size: 15px;
-        font-weight: bold;
-        text-shadow:
-          1px 1px 0 #FFF, -1px -1px 0 #FFF,
-          -1px 1px 0 #FFF, 1px -1px 0 #FFF,
-          0px 1px 0 #FFF,  0-1px 0 #FFF,
-          -1px 0 0 #FFF, 1px 0 0 #FFF;
-      `);
-      elm.style = styles;
-    document.body.appendChild(elm);
-    setTimeout(function() {
-      elm.remove();
-    }, 800);
-  
+    // const elm = document.createElement('span');
+  //   elm.textContent = 'Copied';
+  //   const styles = (`
+  //       z-index:10001;
+  //       position: absolute;
+  //       top: ${e.clientY + -2}px;
+  //       left: ${e.clientX + 15}px;
+  //       color: #0d49b1;
+  //       font-size: 15px;
+  //       font-weight: bold;
+  //       text-shadow:
+  //         1px 1px 0 #FFF, -1px -1px 0 #FFF,
+  //         -1px 1px 0 #FFF, 1px -1px 0 #FFF,
+  //         0px 1px 0 #FFF,  0-1px 0 #FFF,
+  //         -1px 0 0 #FFF, 1px 0 0 #FFF;
+  //     `);
+  //     elm.style = styles;
+  //   document.body.appendChild(elm);
+  //   setTimeout(function() {
+  //     elm.remove();
+  //   }, 800);
   }
 
 })();
