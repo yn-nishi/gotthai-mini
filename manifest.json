@@ -3,7 +3,7 @@
   "short_name": "mini",
   "author": "yn-nishi",
   "description" : "いつでもあなたにごったいを。",
-  "version": "3.0.1",
+  "version": "4.0.0",
   "manifest_version": 3,
   "permissions": ["activeTab","storage", "offscreen"],
   "background": {
@@ -26,9 +26,12 @@
     "48": "icons/gotthai_48.png",
     "128": "icons/gotthai_128.png"
   },
+  "web_accessible_resources": [{
+    "resources": ["css/bubble_box.css"],
+    "matches": ["<all_urls>"]
+  }],
   "content_scripts": [{
     "matches": ["<all_urls>"],
-    "js": ["scripts/bubble_box.js"],
-    "css": ["css/bubble_box.css"]
+    "js": ["scripts/bubble_box.js"]
   }]
  }

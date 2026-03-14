@@ -1,15 +1,25 @@
-/* 他のcssに影響を受けないように全てにmarginとpaddingを指定 */
+/* 他サイトのCSS影響を受けにくくする */
+
+:host {
+  all: initial;
+}
 
 #gotthai-bubble-box {
   position: absolute;
-  margin:0px;
-  padding: 0px 5px 5px 5px;
-  border-radius: 5px;
+  display: inline-block;
+  box-sizing: border-box;
+  width: max-content;
+  min-width: 12rem;
+  margin: 0;
+  padding: 0 5px 5px;
   border: 1px solid rgba(100, 100, 100, 0.6);
-  background-color: rgba(255, 255, 255, 1.0);
+  border-radius: 5px;
+  background-color: #fff;
   box-shadow: 1px 1px 3px gray;
-  max-width: 50%;
-  z-index:10000;
+  max-width: min(50vw, 32rem);
+  z-index: 10000;
+  pointer-events: auto;
+  overflow-wrap: break-word;
 }
 
 #gotthai-bubble-box a:hover {
@@ -21,8 +31,8 @@
 }
 
 #gotthai-bubble-item-name {
-  margin: 5px 0px 0px 0px;
-  padding: 1px 1px;
+  margin: 5px 0 0;
+  padding: 1px;
   font-size: 9px;
   font-family: Arial, Helvetica, sans-serif;
   color: #333;
@@ -31,46 +41,44 @@
 }
 
 #gotthai-bubble-selected-text {
-  margin: 0px;
-  padding: 0px;
-  font-family: 'Segoe UI', Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  font-family: "Segoe UI", Geneva, Verdana, sans-serif;
   font-size: 20px;
-  color: black;
+  color: #000;
 }
 
 #gotthai-bubble-result {
-  margin: 0px;
-  padding: 0px;
-  font-size: 25px;
-  display: -webkit-flex;
   display: flex;
-  -webkit-align-items: center;
   align-items: center;
+  margin: 0;
+  padding: 0;
+  font-size: 22px;
 }
 
 #gotthai-bubble-result a {
-  margin: 0px 5px 0px 0px;
-  padding: 0px;
-  font-family: 'Segoe UI', Geneva, Verdana, sans-serif;
+  margin: 0 5px 0 0;
+  padding: 0;
+  font-family: "Segoe UI", Geneva, Verdana, sans-serif;
   color: #3070df;
-  text-decoration:none;
+  text-decoration: none;
 }
 
 #gotthai-bubble-voice {
-  margin: 0px;
-  padding: 0px;
-  width: 22px;
-  height: 22px;
+  margin: 0;
+  padding: 0;
+  width: 17px;
+  height: 17px;
   background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAQAAABKfvVzAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAAmJLR0QA/4ePzL8AAACjSURBVDjLY2AYYmA1QwADI3FKy8HkfyA8zqBOjPL/YLqO4SWQ9YXBmbDy/1C2EMMGsBZNQsr/w/lMDCuAvKOElP+HeloQSPIxPAPynVAV/seAENHtYLoKyJpDnIb/DOZA2gBI3yRWQx6Q5gZ7nFYaQE4yJN5JW8B0PaanYaADRcMaBh5wsD7HDFZMLURGHEIL0UkDpoWExAfRQlLyJiMDDSAAALgghxq3YsGLAAAAAElFTkSuQmCC);
-  background-size: 100%;
-  background-repeat: no-repeat;
   background-position: center;
-  opacity:0.6;
-  cursor : pointer;
+  background-repeat: no-repeat;
+  background-size: 100%;
+  opacity: 0.6;
+  cursor: pointer;
 }
 
 #gotthai-bubble-voice:hover {
-	opacity: 0.9 ;
+  opacity: 0.9;
 }
 
 #gotthai-bubble-voice:active {
@@ -78,20 +86,20 @@
 }
 
 #gotthai-bubble-copy-thai {
-  margin: 0px;
-  padding: 0px;
-  width: 22px;
-  height: 22px;
-  background-image:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAARlJREFUSEu1lesVgjAMhb+4Du4g7uBADuQO6g6yjvHUVmxDpVGkPzgcaHJzc/MQVj6ysn9aAEdgB/ThpihoiigYvt7jJ7mAXoFgM555AOEmSlc6subZX2FA2foByoBb2czJORmsAGCjqEZVpyKaRCrSbjXQp+zxGY4mMVvFEET+DSArmoYGXoBUcy8GfoDE+80+Fq8Ja4EGXgCjwboMBE3t6hC5aPKPfbAsRaV+NQ0mlfBdH0QSjT7Io/h/isZ5GaMQzih9DKqco9Np+rS4APu5YVemZMOROwegs132LrbRZAA9Nca1YdCan47/rVnkcDF/xQKcEXqzqowHs9qm06C4bwHCujsIdosZkfPd+SXA4pTUiuHvTnOHD5VFXhkNMultAAAAAElFTkSuQmCC');
-  background-size: 100%;
-  background-repeat: no-repeat;
+  margin: 0 0 0 4px;
+  padding: 0;
+  width: 17px;
+  height: 17px;
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAARlJREFUSEu1lesVgjAMhb+4Du4g7uBADuQO6g6yjvHUVmxDpVGkPzgcaHJzc/MQVj6ysn9aAEdgB/ThpihoiigYvt7jJ7mAXoFgM555AOEmSlc6subZX2FA2foByoBb2czJORmsAGCjqEZVpyKaRCrSbjXQp+zxGY4mMVvFEET+DSArmoYGXoBUcy8GfoDE+80+Fq8Ja4EGXgCjwboMBE3t6hC5aPKPfbAsRaV+NQ0mlfBdH0QSjT7Io/h/isZ5GaMQzih9DKqco9Np+rS4APu5YVemZMOROwegs132LrbRZAA9Nca1YdCan47/rVnkcDF/xQKcEXqzqowHs9qm06C4bwHCujsIdosZkfPd+SXA4pTUiuHvTnOHD5VFXhkNMultAAAAAElFTkSuQmCC);
   background-position: center;
-  opacity:0.6;
-  cursor : pointer;
+  background-repeat: no-repeat;
+  background-size: 100%;
+  opacity: 0.6;
+  cursor: pointer;
 }
 
 #gotthai-bubble-copy-thai:hover {
-	opacity: 0.9 ;
+  opacity: 0.9;
 }
 
 #gotthai-bubble-copy-thai:active {
@@ -99,11 +107,11 @@
 }
 
 #gotthai-bubble-pronunciation {
-  margin: 0px;
-  padding: 0px;
+  margin: 0;
+  padding: 0;
   font-size: 15px;
   font-family: Arial, Helvetica, sans-serif;
-  color: black;
+  color: #000;
   cursor: default;
 }
 
@@ -112,60 +120,63 @@
 }
 
 #gotthai-bubble-katakana {
-  margin: 0px;
-  padding: 0px;
+  margin: 0;
+  padding: 0;
   font-size: 10px;
   font-family: Arial, Helvetica, sans-serif;
-  color: black;
+  color: #000;
 }
 
 #gotthai-bubble-meaning {
+  margin: 0;
+  padding: 0;
   font-family: Arial, Helvetica, sans-serif;
-  color: black;
-  margin: 0px;
-  padding: 0px;
+  color: #000;
 }
 
-#gotthai-bubble-meaning ol{
-  margin: 0px;
-  padding: 0px 0px 0px 15px;
+#gotthai-bubble-meaning ol {
+  margin: 0;
+  padding: 0 0 0 15px;
   list-style: decimal;
 }
-#gotthai-bubble-meaning li{
+
+#gotthai-bubble-meaning li {
+  margin: 0;
+  padding: 0;
   font-size: 12px;
-  margin: 0px;
-  padding: 0px;
   list-style: decimal;
 }
 
 #gotthai-bubble-matching {
-  margin: 5px 0px 0px 0px;
-  padding: 0px;
+  margin: 5px 0 0;
+  padding: 0;
   font-size: 10px;
   font-family: Arial, Helvetica, sans-serif;
 }
 
 #gotthai-bubble-matching a {
   color: #3070df;
-  text-decoration:none;
+  text-decoration: none;
 }
 
 #gotthai-bubble-notice {
-  margin: 0px;
-  padding: 0px;
+  margin: 0;
+  padding: 0;
   font-size: 13px;
   font-family: Arial, Helvetica, sans-serif;
-  color: black;
+  color: #000;
 }
+
 #gotthai-bubble-notice a {
   font-size: 20px;
   color: #3070df;
-  text-decoration:none;
+  text-decoration: none;
 }
+
 #gotthai-bubble-error {
-  margin: 10px 0px 0px 0px;
-  padding: 0px;
+  margin: 10px 0 0;
+  padding: 0;
   font-size: 13px;
   font-family: Arial, Helvetica, sans-serif;
-  color: black;
+  color: #000;
 }

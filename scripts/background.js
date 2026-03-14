@@ -1,51 +1,95 @@
 // Copyright 2023 yn-nishi All Rights Reserved.
 "use strict";
-const url = 'https://www.gotthai.net/search_all?utf8=%E2%9C%93&search_form_all%5Bkeyword%5D=';
-// 設定初期化
-chrome.storage.local.get(null, (storage)=>{
-  if (storage['bubbleFunction'] === undefined) {
-    chrome.storage.local.set({'bubbleFunction': true});
+
+const searchUrl = 'https://www.gotthai.net/search_all?utf8=%E2%9C%93&search_form_all%5Bkeyword%5D=';
+const offscreenUrl = '../html/offscreen.html';
+
+async function ensureOffscreenDocument() {
+  const hasDocument = await chrome.offscreen.hasDocument?.();
+  if (!hasDocument) {
+    await chrome.offscreen.createDocument({
+      reasons: ['AUDIO_PLAYBACK'],
+      justification: 'play audio',
+      url: offscreenUrl
+    });
   }
-});
+}
 
-// manifest v3 から background.js に色々と制約がかかったので対策
-chrome.offscreen.createDocument({
-  reasons: ['AUDIO_PLAYBACK'],
-  justification: 'play audio',
-  url: '../html/offscreen.html'
-});
-
-// メイン処理
-chrome.runtime.onMessage.addListener((req, sender, sendResponse)=>{
-  (async () => {
-    let res = {};
-    if (req.keyword) {
-      let keywordFetch = await fetch(url + req.keyword);
-      if (keywordFetch.ok) {
-        res.isSuccess = true;
-        let data = await keywordFetch.text();
-        res.data = data;
-      } else {
-        res.isSuccess = false;
-      }
-
-      sendResponse(res);
-    // URLをoffscreenに投げて音声データを取得
-    } else if (req.voiceUrl) {
-      chrome.runtime.sendMessage(
-        { offscreenVoiceUrl: req.voiceUrl },
-        (voiceBlobUrl) => {
-          sendResponse(voiceBlobUrl);
-        }
-      );
-    // voiceBlobUrlをoffscreenに投げて再生
-    } else if (req.voiceBlobUrl) {
-      chrome.runtime.sendMessage(
-        { offscreenVoiceBlobUrl: req.voiceBlobUrl }
-      );
+function initializeSettings() {
+  chrome.storage.local.get(null, (storage) => {
+    if (storage.bubbleFunction === undefined) {
+      chrome.storage.local.set({ bubbleFunction: true });
     }
-  })();
-  return true;
+  });
+}
+
+async function fetchKeywordResult(keyword) {
+  const res = {};
+
+  try {
+    const keywordFetch = await fetch(searchUrl + keyword);
+    if (keywordFetch.ok) {
+      res.isSuccess = true;
+      res.data = await keywordFetch.text();
+    } else {
+      res.isSuccess = false;
+    }
+  } catch (e) {
+    console.error('Keyword fetch error:', e);
+    res.isSuccess = false;
+  }
+
+  return res;
+}
+
+async function relayToOffscreen(message) {
+  await ensureOffscreenDocument();
+  return chrome.runtime.sendMessage(message);
+}
+
+initializeSettings();
+ensureOffscreenDocument();
+
+chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
+  if (req.keyword) {
+    (async () => {
+      sendResponse(await fetchKeywordResult(req.keyword));
+    })();
+    return true;
+  }
+
+  if (req.playVoiceUrl) {
+    relayToOffscreen({ offscreenPlayVoiceUrl: req.playVoiceUrl }).catch((e) => {
+      console.error('Voice playback relay error:', e);
+    });
+    return false;
+  }
+
+  if (req.preloadVoiceUrl) {
+    relayToOffscreen({ offscreenPreloadVoiceUrl: req.preloadVoiceUrl }).catch((e) => {
+      console.error('Voice preload relay error:', e);
+    });
+    return false;
+  }
+
+  if (req.voiceUrl) {
+    (async () => {
+      try {
+        sendResponse(await relayToOffscreen({ offscreenVoiceUrl: req.voiceUrl }));
+      } catch (e) {
+        console.error('Voice blob fetch relay error:', e);
+        sendResponse();
+      }
+    })();
+    return true;
+  }
+
+  if (req.voiceBlobUrl) {
+    relayToOffscreen({ offscreenVoiceBlobUrl: req.voiceBlobUrl }).catch((e) => {
+      console.error('Voice blob relay error:', e);
+    });
+    return false;
+  }
+
+  return false;
 });
-
-
