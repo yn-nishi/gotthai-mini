@@ -34,9 +34,12 @@
     const previousBubble = overlayRoot.getElementById('gotthai-bubble-box');
     // 吹き出し上のクリックは何もせず終了
     if (previousBubble && eventPath.includes(previousBubble)) return;
+
     // 前回のアンカーと吹き出し削除
+    const hadPrevious = Boolean(previousAnchor || previousBubble);
     previousAnchor?.remove();
     previousBubble?.remove();
+    if (hadPrevious) return;
 
     // メイン処理
     if (!shouldShowBubble(keyword)) return;
@@ -51,7 +54,7 @@
     const boxElm = response.isSuccess ? createBubbleBox(keyword, response, overlayRoot) : createErrorBox(keyword, overlayRoot);
     setBubbleBox(anchorRect, boxElm);
   }
-
+  // 吹き出しを表示すべきか
   function shouldShowBubble(keyword) {
     return keyword.trim() !== '' &&
       settings.bubbleFunction &&
