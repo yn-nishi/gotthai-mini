@@ -86,6 +86,7 @@
 }
 
 #gotthai-bubble-copy-thai {
+  display: inline-block;
   margin: 0 0 0 4px;
   padding: 0;
   width: 17px;

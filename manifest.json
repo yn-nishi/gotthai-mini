@@ -3,7 +3,7 @@
   "short_name": "mini",
   "author": "yn-nishi",
   "description" : "いつでもあなたにごったいを。",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "manifest_version": 3,
   "permissions": ["activeTab","storage", "offscreen"],
   "background": {

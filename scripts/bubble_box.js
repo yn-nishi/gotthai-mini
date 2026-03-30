@@ -12,12 +12,30 @@
     bubbleFunction: false
   };
   let overlayStyleTextPromise = null;
+  let bubbleClosedByClick = false;
+  let lastKeyword = '';
 
-  // 設定読み込み
-  document.onmousedown = () => {
+
+  document.onmousedown = async (e) => {
+    // 設定読み込み
     chrome.storage.local.get(null, (storage) => {
       settings.bubbleFunction = storage.bubbleFunction || false;
     });
+    // クリックした場所が吹き出しでなければ、既存の吹き出しを消す
+    const overlayRoot = await ensureOverlayRoot();
+    const eventPath = typeof e.composedPath === 'function' ? e.composedPath() : [];
+    const previousBubble = overlayRoot.getElementById('gotthai-bubble-box');
+    if (previousBubble) {
+      if (eventPath.includes(previousBubble)) return;
+      const previousAnchor = overlayRoot.getElementById('gotthai-mini-anchor');
+      previousAnchor?.remove();
+      previousBubble?.remove();
+      // 再表示防止
+      bubbleClosedByClick = true;
+      setTimeout(() => {
+        lastKeyword = '';
+      }, 100);
+    }
   };
 
   document.onmouseup = (e) => {
@@ -27,39 +45,39 @@
   async function handleMouseUp(e) {
     const selection = window.getSelection();
     const keyword = selection.toString();
+    // 吹き出し消去後の即再表示防止
+    if (bubbleClosedByClick && keyword === lastKeyword) {
+      bubbleClosedByClick = false;
+      return;
+    }
     const overlayRoot = await ensureOverlayRoot();
     const eventPath = typeof e.composedPath === 'function' ? e.composedPath() : [];
-    // 前回のアンカーと吹き出し情報取得
-    const previousAnchor = overlayRoot.getElementById('gotthai-mini-anchor');
-    const previousBubble = overlayRoot.getElementById('gotthai-bubble-box');
     // 吹き出し上のクリックは何もせず終了
+    const previousBubble = overlayRoot.getElementById('gotthai-bubble-box');
     if (previousBubble && eventPath.includes(previousBubble)) return;
-
-    // 前回のアンカーと吹き出し削除
-    const hadPrevious = Boolean(previousAnchor || previousBubble);
-    previousAnchor?.remove();
-    previousBubble?.remove();
-    if (hadPrevious) return;
-
     // メイン処理
     if (!shouldShowBubble(keyword)) return;
 
     const anchorRect = setAnchor(selection, overlayRoot);
     if (keyword.length > characterLimit) {
       setBubbleBox(anchorRect, createErrorBox(keyword, overlayRoot));
+      lastKeyword = keyword;
       return;
     }
 
     const response = await lookupKeyword(keyword);
     const boxElm = response.isSuccess ? createBubbleBox(keyword, response, overlayRoot) : createErrorBox(keyword, overlayRoot);
     setBubbleBox(anchorRect, boxElm);
+    lastKeyword = keyword;
   }
   // 吹き出しを表示すべきか
   function shouldShowBubble(keyword) {
     return keyword.trim() !== '' &&
       settings.bubbleFunction &&
       isThai(keyword) &&
-      !isFormArea();
+      !isFormArea() &&
+      keyword !== lastKeyword;
+
   }
 
   function lookupKeyword(keyword) {
@@ -193,7 +211,10 @@
     createElement({ tag: 'div', id: 'gotthai-bubble-item-name', tx: '選択文字列', appendTo: box });
     const notice = createElement({ tag: 'div', id: 'gotthai-bubble-notice', appendTo: box });
     createElement({ tag: 'a', href: searchUrl + keyword, tx: keyword, appendTo: notice });
-    notice.innerHTML += '<br>は見つかりませんでした。';
+    const copy = createElement({ tag: 'span', id: 'gotthai-bubble-copy-thai', appendTo: notice });
+    copy.addEventListener('click', () => clipboard(keyword));
+    createElement({ tag: 'br', appendTo: notice });
+    createElement({ tag: 'span', tx: 'は見つかりませんでした。', appendTo: notice });
   }
 
   // 吹き出しを見やすい位置に配置
